@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โครงการแก้มลิง</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+    <style>
+        :root { --primary: #0077b6; --bg: #f0f9ff; }
+        body { font-family: 'Kanit', sans-serif; background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 100%); margin: 0; padding: 15px; min-height: 100vh; }
+        .app-container { max-width: 1100px; margin: auto; }
+        
+        .monkey-header { display: flex; align-items: center; justify-content: center; gap: 15px; background: white; padding: 10px 25px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        /* ใช้ภาพลิงที่คุณต้องการ */
+        .monkey-logo { width: 65px; height: 65px; object-fit: cover; border-radius: 50%; border: 2px solid var(--primary); }
+        .header-text h1 { margin: 0; font-size: 1.4rem; color: var(--primary); }
+        
+        .main-content { display: flex; flex-direction: column; gap: 20px; }
+        #map { height: 400px; width: 100%; border-radius: 25px; border: 5px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 1; }
+        
+        .card { background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600; }
+        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 12px; box-sizing: border-box; }
+        
+        .main-button { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .result-box { margin-top: 20px; text-align: center; padding: 20px; background: #caf0f8; border-radius: 20px; border: 2px solid #00b4d8; }
+        #volResult { font-size: 2.5rem; font-weight: bold; color: var(--primary); }
+
+        @media (min-width: 900px) {
+            .main-content { flex-direction: row; }
+            #map { flex: 2; height: 550px; }
+            .side-panel { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="monkey-header">
+        <img src="https://images2.imgbox.com/64/74/pXj2T6Gz_o.png" class="monkey-logo">
+        <div class="header-text">
+            <h1>LINGMAP</h1>
+            <p>ระบบคำนวณพื้นที่กักเก็บน้ำ</p>
+        </div>
+    </header>
+    
+    <div class="main-content">
+        <div id="map"></div>
+        <div class="side-panel">
+            <div class="card">
+                <div class="input-group">
+                    <label>พื้นที่ (ตารางเมตร)</label>
+                    <input type="number" id="areaInput" readonly>
+                </div>
+                <div class="input-group">
+                    <label>ความลึก (เมตร)</label>
+                    <input type="number" id="depthInput" value="3">
+                </div>
+                <button id="calcBtn" class="main-button">คำนวณปริมาตรน้ำ</button>
+                <div class="result-box">
+                    <small>ปริมาณน้ำกักเก็บ</small>
+                    <div id="volResult">0</div>
+                    <span>ลูกบาศก์เมตร (m³)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script>
+window.onload = function() {
+    var map = L.map('map').setView([13.736, 100.523], 6);
+    L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map);
+
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+    var drawControl = new L.Control.Draw({
+        draw: { polygon: true, rectangle: true, circle: true, marker: false, polyline: false },
+        edit: { featureGroup: drawnItems }
+    });
+    map.addControl(drawControl);
+
+    map.on(L.Draw.Event.CREATED, function (e) {
+        var layer = e.layer;
+        drawnItems.addLayer(layer);
+        let area = (e.layerType === 'circle') ? 
+            Math.PI * Math.pow(layer.getRadius(), 2) : 
+            L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+        document.getElementById('areaInput').value = Math.round(area);
+    });
+
+    document.getElementById('calcBtn').onclick = function() {
+        var a = document.getElementById('areaInput').value;
+        var d = document.getElementById('depthInput').value;
+        document.getElementById('volResult').innerText = (a * d).toLocaleString();
+    };
+};
+</script>
+</body>
+</html>

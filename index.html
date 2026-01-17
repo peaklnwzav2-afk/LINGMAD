@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* CSS ดีไซน์ตามรูปภาพ */
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
 
         :root { --main: #0076a1; --soft: #55c4d3; --bg: #f0f8ff; }
@@ -23,30 +24,28 @@
 
         .main-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
         
-        /* ปรับปรุงส่วนแผนที่ */
         .map-section { position: relative; border-radius: 25px; overflow: hidden; height: 550px; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        .gps-button { position: absolute; top: 15px; right: 15px; z-index: 1000; background: white; border: none; width: 45px; height: 45px; border-radius: 12px; cursor: pointer; color: var(--main); box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: 0.3s; }
-        .gps-button:hover { background: #f0f0f0; }
+        .gps-button { position: absolute; top: 15px; right: 15px; z-index: 1000; background: white; border: none; width: 45px; height: 45px; border-radius: 12px; cursor: pointer; color: var(--main); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
         .control-panel { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .input-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 5px; font-weight: 600; }
         input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Kanit'; box-sizing: border-box; }
 
-        .btn-calc { width: 100%; background: var(--main); color: white; border: none; padding: 14px; border-radius: 15px; cursor: pointer; margin: 10px 0; font-size: 1rem; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-calc { width: 100%; background: var(--main); color: white; border: none; padding: 14px; border-radius: 15px; cursor: pointer; margin: 10px 0; font-size: 1rem; }
 
         .result-card { border: 2px solid var(--soft); border-radius: 20px; padding: 15px; text-align: center; background: #f9feff; margin: 15px 0; }
         .result-card h1 { margin: 5px 0; color: var(--main); font-size: 2.2rem; }
 
-        .slope-info { background: #f8f9fa; padding: 12px; border-radius: 15px; border-left: 5px solid #ccc; font-size: 0.85rem; margin-bottom: 15px; }
+        .slope-info { background: #f8f9fa; padding: 12px; border-radius: 15px; border-left: 5px solid #ccc; font-size: 0.85rem; }
         .warning { color: #d32f2f; font-weight: 600; }
-        .success { color: #2e7d32; font-weight: 600; }
+
         .stat-row { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9rem; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
 
-        /* ป้ายบอกระยะเมตรบนแผนที่ */
-        .dist-label { background: white; border: 1px solid var(--main); border-radius: 4px; padding: 2px 5px; font-weight: bold; color: var(--main); font-size: 11px; white-space: nowrap; text-align: center; }
+        /* ป้ายบอกระยะเมตร */
+        .dist-label { background: white; border: 1px solid var(--main); border-radius: 4px; padding: 2px 5px; font-weight: bold; color: var(--main); font-size: 11px; white-space: nowrap; }
 
         @media (max-width: 768px) {
             .main-layout { grid-template-columns: 1fr; }
@@ -70,9 +69,7 @@
     <div class="main-layout">
         <section class="map-section">
             <div id="map"></div>
-            <button id="locate-me" class="gps-button" title="ตำแหน่งปัจจุบัน">
-                <i class="fa-solid fa-crosshairs"></i>
-            </button>
+            <button id="locate-me" class="gps-button"><i class="fa-solid fa-crosshairs"></i></button>
         </section>
 
         <aside class="control-panel">
@@ -89,11 +86,11 @@
             </div>
 
             <div class="input-group">
-                <label>ประเภทดิน (หักลบองศา Slope)</label>
+                <label>ประเภทดิน (ป้องกันดินถล่ม)</label>
                 <select id="soil-type">
-                    <option value="1">ดินเหนียว (Slope 1:1 - องศาชัน)</option>
-                    <option value="1.5">ดินร่วน (Slope 1:1.5 - ปานกลาง)</option>
-                    <option value="2">ดินทราย (Slope 1:2 - องศาลาด)</option>
+                    <option value="1">ดินเหนียว (แข็งแรงมาก - Slope 1:1)</option>
+                    <option value="1.5">ดินร่วน (ปานกลาง - Slope 1:1.5)</option>
+                    <option value="2">ดินทราย (เสี่ยงถล่ม - Slope 1:2)</option>
                 </select>
             </div>
 
@@ -107,13 +104,13 @@
                 <span>ลูกบาศก์เมตร (m³)</span>
             </div>
 
-            <div class="slope-info">
+            <div class="slope-info" id="slope-card">
                 <p><strong>มุมขุดที่แนะนำ:</strong> <span id="angle-text">--</span></p>
-                <p id="safety-msg" class="warning">กรุณาวาดพื้นที่บนแผนที่</p>
+                <p id="safety-msg" class="warning">กรุณาวาดพื้นที่เพื่อรับคำแนะนำ</p>
             </div>
 
             <div class="footer-stats">
-                <div class="input-group">
+                <div class="input-group" style="margin-top:10px;">
                     <label>ราคาค่าขุด (บาท/ลบ.ม.)</label>
                     <input type="number" id="price-input" value="35">
                 </div>
@@ -133,7 +130,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
 <script>
-    // --- 1. ตั้งค่าแผนที่ ---
+    // ตั้งค่าแผนที่ Google Satellite
     var map = L.map('map').setView([13.7367, 100.5231], 6);
     L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
         maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']
@@ -142,20 +139,19 @@
     var drawnItems = new L.FeatureGroup().addTo(map);
     var currentArea = 0;
 
-    // --- 2. เครื่องมือวาดรูป ---
     var drawControl = new L.Control.Draw({
         draw: {
             polyline: { shapeOptions: { color: '#0076a1' } },
             polygon: { showArea: true, metric: true, shapeOptions: { color: '#0076a1' } },
             rectangle: { shapeOptions: { color: '#0076a1' } }, 
             circle: { metric: true }, 
-            marker: false, circlemarker: false
+            marker: false
         },
         edit: { featureGroup: drawnItems }
     });
     map.addControl(drawControl);
 
-    // --- 3. ฟังก์ชันคำนวณปริมาณน้ำหัก Slope ---
+    // ฟังก์ชันคำนวณปริมาณน้ำหัก Slope
     function calculateAll() {
         var d = parseFloat(document.getElementById('depth-input').value) || 0;
         var z = parseFloat(document.getElementById('soil-type').value);
@@ -163,11 +159,8 @@
 
         var angleMap = { "1": "45°", "1.5": "33°", "2": "26°" };
         document.getElementById('angle-text').innerText = angleMap[z] || "--";
-        
-        var msg = document.getElementById('safety-msg');
 
         if (currentArea > 0) {
-            // สูตร Prismoidal Formula
             var side = Math.sqrt(currentArea);
             var bottomSide = Math.max(0, side - (2 * z * d));
             var a2 = Math.pow(bottomSide, 2);
@@ -176,13 +169,10 @@
             document.getElementById('volume-res').innerText = Math.round(volume).toLocaleString();
             document.getElementById('cost-res').innerText = Math.round(volume * price).toLocaleString() + " บาท";
             document.getElementById('fish-res').innerText = Math.round(volume * 10).toLocaleString();
-            
-            msg.innerText = "✅ คำนวณตามมาตรฐานความปลอดภัยแล้ว";
-            msg.className = "success";
         }
     }
 
-    // --- 4. ฟังก์ชันสร้างป้ายบอกระยะเมตร ---
+    // ฟังก์ชันสร้างป้ายบอกระยะเมตร
     function addDistanceMarkers(layer) {
         var latlngs = layer.getLatLngs();
         if (latlngs[0] instanceof Array) latlngs = latlngs[0];
@@ -199,14 +189,13 @@
                 icon: L.divIcon({ 
                     className: 'dist-label', 
                     html: dist.toFixed(1) + ' ม.', 
-                    iconSize: [50, 20] 
+                    iconSize: [45, 20] 
                 }),
                 interactive: false
             }).addTo(drawnItems);
         }
     }
 
-    // --- 5. จัดการ Event การวาด ---
     map.on(L.Draw.Event.CREATED, function (e) {
         drawnItems.clearLayers();
         var layer = e.layer;
@@ -215,9 +204,6 @@
         if (e.layerType === 'circle') {
             var radius = layer.getRadius();
             currentArea = Math.PI * Math.pow(radius, 2);
-            L.marker(layer.getLatLng(), {
-                icon: L.divIcon({ className:'dist-label', html:'R: '+radius.toFixed(1)+'ม.', iconSize:[60,20] })
-            }).addTo(drawnItems);
         } else {
             currentArea = turf.area(layer.toGeoJSON());
             addDistanceMarkers(layer);
@@ -227,7 +213,7 @@
         calculateAll();
     });
 
-    // --- 6. ฟังก์ชัน GPS (Locate Me) ---
+    // ปุ่ม GPS
     document.getElementById('locate-me').onclick = function() {
         map.locate({setView: true, maxZoom: 16});
     };
@@ -236,165 +222,11 @@
         L.marker(e.latlng).addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
     });
 
-    map.on('locationerror', function(e) {
-        alert("ไม่สามารถเข้าถึงตำแหน่งได้: " + e.message);
-    });
-
-    // ตรวจสอบการเปลี่ยนค่าอินพุต
+    setTimeout(() => map.invalidateSize(), 500);
     document.getElementById('soil-type').onchange = calculateAll;
     document.getElementById('depth-input').oninput = calculateAll;
-    document.getElementById('price-input').oninput = calculateAll;
     document.getElementById('btn-calculate').onclick = calculateAll;
-
-    // แก้ปัญหาแผนที่โหลดไม่เต็มกรอบ
-    setTimeout(() => map.invalidateSize(), 500);
 </script>
 
-</body>
-</html>
-            <div class="result-box">
-                <small>ปริมาณน้ำกักเก็บสูงสุด</small>
-                <h2 id="vol-res">0</h2>
-                <span>ลูกบาศก์เมตร (m³)</span>
-            </div>
-
-            <div class="analysis-card">
-                <div class="input-group">
-                    <label>ราคาค่าขุดเฉลี่ย (บาท/ลบ.ม.)</label>
-                    <input type="number" id="price-unit" value="35">
-                </div>
-                <div class="stats">
-                    <div class="stat-row">
-                        <span><i class="fa-solid fa-money-bill-trend-up"></i> งบประมาณเบื้องต้น:</span>
-                        <strong id="cost-res">0</strong> บาท
-                    </div>
-                    <div class="stat-row">
-                        <span><i class="fa-solid fa-fish"></i> เลี้ยงปลาได้ประมาณ:</span>
-                        <strong id="fish-res">0</strong> ตัว
-                    </div>
-                </div>
-                <p style="font-size: 0.7rem; color: #999; margin-top: 10px;">*อ้างอิงความหนาแน่น 1-2 ตัว ต่อ 1 ลบ.ม.</p>
-            </div>
-        </aside>
-    </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.3/src/leaflet.geometryutil.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // แผนที่ดาวเทียม Google
-        var map = L.map('map').setView([13.75, 100.5], 6);
-        L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-            maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']
-        }).addTo(map);
-
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
-
-        // แถบเครื่องมือวาดรูปทรงต่างๆ
-        var drawControl = new L.Control.Draw({
-            draw: { polygon: true, rectangle: true, circle: true, polyline: true, marker: false },
-            edit: { featureGroup: drawnItems }
-        });
-        map.addControl(drawControl);
-
-        var currentArea = 0;
-
-        // ระบบวัดระยะเมตรและคำนวณพื้นที่
-        map.on(L.Draw.Event.CREATED, function (e) {
-            drawnItems.clearLayers();
-            var layer = e.layer;
-            var type = e.layerType;
-            var pts;
-
-            if (type === 'circle') {
-                pts = [layer.getLatLng()];
-                var radius = layer.getRadius();
-                currentArea = Math.PI * radius * radius;
-                L.marker(pts[0], { 
-                    icon: L.divIcon({ className: 'dist-label', html: 'รัศมี: ' + radius.toFixed(1) + ' m' }) 
-                }).addTo(drawnItems);
-            } else {
-                pts = (type === 'polyline') ? layer.getLatLngs() : layer.getLatLngs()[0];
-                if (type !== 'polyline') currentArea = L.GeometryUtil.geodesicArea(pts);
-                
-                // แสดงระยะห่างระหว่างจุดเป็นเมตร
-                for (var i = 0; i < pts.length - (type === 'polyline' ? 1 : 0); i++) {
-                    var n = (i + 1) % pts.length;
-                    var d = pts[i].distanceTo(pts[n]);
-                    var mid = L.latLng((pts[i].lat + pts[n].lat)/2, (pts[i].lng + pts[n].lng)/2);
-                    L.marker(mid, { 
-                        icon: L.divIcon({ className: 'dist-label', html: d.toFixed(1) + ' m' }) 
-                    }).addTo(drawnItems);
-                }
-            }
-
-            document.getElementById('area-val').value = currentArea.toFixed(2);
-            drawnItems.addLayer(layer);
-            calculate();
-        });
-
-        // ระบบวิเคราะห์ความคุ้มค่า
-        function calculate() {
-            var depth = document.getElementById('depth-val').value;
-            var price = document.getElementById('price-unit').value;
-            var vol = currentArea * depth;
-            var cost = vol * price;
-            var fish = vol * 1.5;
-
-            document.getElementById('vol-res').innerText = vol.toLocaleString(undefined, {maximumFractionDigits: 0});
-            document.getElementById('cost-res').innerText = cost.toLocaleString(undefined, {maximumFractionDigits: 0});
-            document.getElementById('fish-res').innerText = fish.toLocaleString(undefined, {maximumFractionDigits: 0});
-        }
-
-        // ปุ่ม GPS ระบุตำแหน่งจริง
-        document.getElementById('locate-me').onclick = function() {
-            map.locate({setView: true, maxZoom: 18});
-        };
-
-        map.on('locationfound', function(e) {
-            L.marker(e.latlng).addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
-        });
-
-        map.on('locationerror', function() {
-            alert("ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาเปิด GPS และอนุญาตให้เบราว์เซอร์เข้าถึงตำแหน่งครับ");
-        });
-
-        document.getElementById('btn-calc').onclick = calculate;
-    });
-</script>
-
-</body>
-</html>
-        maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-    }).addTo(map);
-
-    var drawnItems = new L.FeatureGroup();
-    map.addLayer(drawnItems);
-    var drawControl = new L.Control.Draw({
-        draw: { polygon: true, rectangle: true, circle: true, marker: false, polyline: false },
-        edit: { featureGroup: drawnItems }
-    });
-    map.addControl(drawControl);
-
-    map.on(L.Draw.Event.CREATED, function (e) {
-        var layer = e.layer;
-        drawnItems.addLayer(layer);
-        let area = (e.layerType === 'circle') ? 
-            Math.PI * Math.pow(layer.getRadius(), 2) : 
-            L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
-        document.getElementById('areaInput').value = Math.round(area);
-    });
-
-    document.getElementById('calcBtn').onclick = function() {
-        var a = document.getElementById('areaInput').value;
-        var d = document.getElementById('depthInput').value;
-        document.getElementById('volResult').innerText = (a * d).toLocaleString();
-    };
-};
-</script>
 </body>
 </html>
